@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Expense Management — Built From Scratch</title>
+<meta name="description" content="An original from-scratch build of a cloud-deployed expense management system: submit expenses, route them for approval, and run it all on managed cloud services that scale and stay cheap when idle." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --accent:#6366f1; --accent-soft:#ecedfd; --ink:#14152a; --muted:#535574;
+    --line:#e0e1f6; --bg:#f9f9fe; --card:#ffffff;
+    --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 28px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:.86em;background:var(--accent-soft);padding:.1em .4em;border-radius:4px;color:#4f46e5}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.15;letter-spacing:-.01em}
+  header.hero{padding:88px 0 56px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 22px}
+  h1{font-size:clamp(2.6rem,6vw,4.1rem);margin:0 0 18px}
+  .lede{font-size:1.22rem;color:var(--muted);max-width:62ch;margin:0 0 28px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;font-size:.82rem}
+  .chip{font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--muted);background:var(--card)}
+  section{padding:54px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  h2{font-size:clamp(1.7rem,3.4vw,2.3rem);margin:0 0 20px}
+  h3{font-size:1.2rem;margin:0 0 6px}
+  p{margin:0 0 18px;max-width:68ch}
+  .muted{color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:8px}
+  .tool{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .tool .t{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:.04em;margin-bottom:8px}
+  .tool h3{font-size:1.05rem;font-family:var(--sans);font-weight:600;margin-bottom:6px}
+  .tool p{font-size:.92rem;color:var(--muted);margin:0}
+  ol.flow{counter-reset:s;list-style:none;padding:0;margin:24px 0 0}
+  ol.flow li{position:relative;padding:18px 0 18px 56px;border-top:1px solid var(--line)}
+  ol.flow li:before{counter-increment:s;content:counter(s,decimal-leading-zero);position:absolute;left:0;top:18px;font-family:var(--mono);font-size:.8rem;color:var(--accent);border:1px solid var(--line);border-radius:8px;width:38px;height:38px;display:grid;place-items:center;background:var(--card)}
+  ol.flow li h3{font-family:var(--sans);font-size:1.02rem;font-weight:600;margin:0 0 4px}
+  ol.flow li p{margin:0;font-size:.93rem;color:var(--muted)}
+  .callout{background:var(--accent-soft);border:1px solid #cccdfa;border-radius:14px;padding:24px 26px;margin-top:8px}
+  .callout p:last-child{margin:0}
+  ul.learn{list-style:none;padding:0;margin:8px 0 0}
+  ul.learn li{padding:14px 0 14px 30px;border-top:1px solid var(--line);position:relative;color:var(--muted);max-width:68ch}
+  ul.learn li:before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
+  ul.learn li b{color:var(--ink);font-weight:600}
+  .price{display:flex;align-items:baseline;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px;margin-top:8px}
+  .price .n{font-family:var(--serif);font-size:2.6rem;color:var(--accent);line-height:1}
+  .price .l{color:var(--muted);font-size:.95rem}
+  footer{padding:48px 0 80px}
+  .credit{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
+  .credit .k{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  footer .fine{font-size:.8rem;color:var(--muted);margin-top:22px;text-align:center}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">From-Scratch Build · Cloud Computing</p>
+    <h1>Expense Management</h1>
+    <p class="lede">Submit a receipt, route it to the right approver, watch it move from pending to reimbursed — and run the whole thing on cloud services that scale up under load and cost almost nothing when idle. I rebuilt this expense system from scratch because it's the cleanest way to learn cloud architecture: a real app, designed around managed services instead of a server you babysit.</p>
+    <div class="meta">
+      <span class="chip">Cloud</span><span class="chip">Serverless</span><span class="chip">Managed DB</span>
+      <span class="chip">Auth</span><span class="chip">Object storage</span><span class="chip">IaC</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">What it is</p>
+    <h2>An app designed for the cloud, not just hosted on it</h2>
+    <p>The feature set is familiar — employees file expenses with receipts, managers approve or reject, finance reimburses. What makes it a <i>cloud</i> project is the architecture. Instead of one server running everything, the work is spread across managed building blocks: a serverless function for the logic, a managed database for the records, object storage for the receipt images, and a hosted auth service for logins.</p>
+    <p>That shift is the whole lesson. You stop thinking about machines and start thinking about services that someone else keeps running, scaling and patching. The skill becomes wiring them together cleanly — and understanding the trade in control for elasticity and operational calm.</p>
+    <div class="price">
+      <div class="n">scale-to-0</div>
+      <div class="l">the cloud-native payoff — handle a spike at month-end, then cost almost nothing the rest of the time.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">The stack</p>
+    <h2>From receipt to reimbursement, on managed services</h2>
+    <p class="muted">Each concern handed to the service built for it.</p>
+    <div class="grid">
+      <div class="tool"><div class="t">compute</div><h3>Serverless functions</h3><p>Run the business logic on demand — no idle servers, automatic scaling under load.</p></div>
+      <div class="tool"><div class="t">data</div><h3>Managed database</h3><p>Store expenses, users and approvals in a database the provider runs and backs up.</p></div>
+      <div class="tool"><div class="t">files</div><h3>Object storage</h3><p>Keep receipt images in scalable blob storage, separate from the records that reference them.</p></div>
+      <div class="tool"><div class="t">access</div><h3>Hosted auth</h3><p>Offload logins, sessions and roles to a managed identity service.</p></div>
+      <div class="tool"><div class="t">workflow</div><h3>Approval routing</h3><p>Move each expense through submitted → approved → reimbursed with the right approver.</p></div>
+      <div class="tool"><div class="t">repeatable</div><h3>Infrastructure as code</h3><p>Define the whole stack in code so it can be torn down and recreated identically.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Architecture</p>
+    <h2>How an expense flows through the cloud</h2>
+    <p>A single claim touches several managed services in turn:</p>
+    <ol class="flow">
+      <li><h3>Submit</h3><p>An employee logs in via the auth service and files an expense with a receipt.</p></li>
+      <li><h3>Store</h3><p>The receipt goes to object storage; the record goes to the managed database.</p></li>
+      <li><h3>Route</h3><p>A serverless function assigns it to the correct approver.</p></li>
+      <li><h3>Decide</h3><p>The approver accepts or rejects, updating the expense's state.</p></li>
+      <li><h3>Reimburse</h3><p>Approved expenses move to reimbursed and close the loop.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Reflection</p>
+    <h2>What rebuilding it taught me</h2>
+    <ul class="learn">
+      <li><b>Cloud is a design choice, not a host.</b> The win comes from architecting around managed services, not from renting a VM.</li>
+      <li><b>Managed services trade control for calm.</b> You give up tuning the database yourself and get backups, scaling and patching in return.</li>
+      <li><b>Storage and data want separating.</b> Receipts belong in object storage; their metadata belongs in the database — mixing them is a classic mistake.</li>
+      <li><b>Scale-to-zero changes the economics.</b> Serverless makes a bursty, occasionally-used app genuinely cheap to run.</li>
+      <li><b>Infrastructure as code is non-negotiable.</b> If you can't recreate the stack from a file, you don't really understand it.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="credit">
+      <div class="k">About this build</div>
+      <p style="margin:0">An original, from-scratch build by <b>Andrea</b> — written to learn cloud-native architecture: serverless compute, managed databases, object storage, hosted auth, approval workflows and infrastructure as code. Plain HTML/CSS, deployed on GitHub Pages.</p>
+    </div>
+    <p class="fine">Built from scratch by Andrea · one of an ongoing series of learning builds.</p>
+  </div>
+</footer>
+</body>
+</html>
