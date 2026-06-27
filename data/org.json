@@ -1,0 +1,12 @@
+{
+  "_comment": "Sample organisation. manager_id builds the reporting tree; role drives routing. 'absent' employees are skipped and approvals escalate to their manager.",
+  "employees": [
+    { "id": 1, "name": "Dana Reyes",     "role": "director", "manager_id": null, "absent": false },
+    { "id": 2, "name": "Marco Lindt",    "role": "finance",  "manager_id": 1,    "absent": false },
+    { "id": 3, "name": "Priya Anand",    "role": "manager",  "manager_id": 1,    "absent": false },
+    { "id": 4, "name": "Tomas Vega",     "role": "manager",  "manager_id": 1,    "absent": true  },
+    { "id": 5, "name": "Lena Ortiz",     "role": "employee", "manager_id": 3,    "absent": false },
+    { "id": 6, "name": "Sam Okafor",     "role": "employee", "manager_id": 3,    "absent": false },
+    { "id": 7, "name": "Iris Chen",      "role": "employee", "manager_id": 4,    "absent": false }
+  ]
+}

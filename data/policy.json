@@ -1,0 +1,7 @@
+{
+  "_comment": "Approval policy. All amounts are in the org's single currency unit.",
+  "auto_approve_under": 25.0,
+  "manager_limit": 500.0,
+  "finance_categories": ["travel", "equipment"],
+  "finance_amount_floor": 2000.0
+}

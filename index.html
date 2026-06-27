@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Expense Management — Built From Scratch</title>
-<meta name="description" content="An original from-scratch build of a cloud-deployed expense management system: submit expenses, route them for approval, and run it all on managed cloud services that scale and stay cheap when idle." />
+<title>Expense Management — Approval-Routing Engine</title>
+<meta name="description" content="A real FastAPI expense system whose substance is the approval-routing engine: compute the ordered approval chain from an org policy, advance a state machine on approve/reject, and record an audit trail. SQLite + FastAPI, fully tested." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -50,9 +50,13 @@
   ul.learn li{padding:14px 0 14px 30px;border-top:1px solid var(--line);position:relative;color:var(--muted);max-width:68ch}
   ul.learn li:before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
   ul.learn li b{color:var(--ink);font-weight:600}
-  .price{display:flex;align-items:baseline;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px;margin-top:8px}
-  .price .n{font-family:var(--serif);font-size:2.6rem;color:var(--accent);line-height:1}
-  .price .l{color:var(--muted);font-size:.95rem}
+  pre{background:#14152a;color:#e6e7fb;border-radius:14px;padding:22px 24px;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.6;margin:8px 0 0}
+  pre .c{color:#8b8da8}
+  pre .a{color:#a5b4fc}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.92rem}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  td code{font-size:.82em}
   footer{padding:48px 0 80px}
   .credit{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
   .credit .k{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
@@ -62,71 +66,103 @@
 <body>
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow">From-Scratch Build · Cloud Computing</p>
+    <p class="eyebrow">From-Scratch Build · Python · FastAPI</p>
     <h1>Expense Management</h1>
-    <p class="lede">Submit a receipt, route it to the right approver, watch it move from pending to reimbursed — and run the whole thing on cloud services that scale up under load and cost almost nothing when idle. I rebuilt this expense system from scratch because it's the cleanest way to learn cloud architecture: a real app, designed around managed services instead of a server you babysit.</p>
+    <p class="lede">A working expense system whose substance is the <b>approval-routing engine</b>: give it an expense and an org policy and it computes the ordered chain of approvers, advances a small state machine as each one approves or rejects, and records every step in an audit trail. SQLite persistence and a FastAPI surface sit on top.</p>
     <div class="meta">
-      <span class="chip">Cloud</span><span class="chip">Serverless</span><span class="chip">Managed DB</span>
-      <span class="chip">Auth</span><span class="chip">Object storage</span><span class="chip">IaC</span>
+      <span class="chip">Python 3.12</span><span class="chip">FastAPI</span><span class="chip">SQLite</span>
+      <span class="chip">State machine</span><span class="chip">24 tests</span><span class="chip">MIT</span>
     </div>
   </div>
 </header>
 
 <section>
   <div class="wrap">
-    <p class="kicker">What it is</p>
-    <h2>An app designed for the cloud, not just hosted on it</h2>
-    <p>The feature set is familiar — employees file expenses with receipts, managers approve or reject, finance reimburses. What makes it a <i>cloud</i> project is the architecture. Instead of one server running everything, the work is spread across managed building blocks: a serverless function for the logic, a managed database for the records, object storage for the receipt images, and a hosted auth service for logins.</p>
-    <p>That shift is the whole lesson. You stop thinking about machines and start thinking about services that someone else keeps running, scaling and patching. The skill becomes wiring them together cleanly — and understanding the trade in control for elasticity and operational calm.</p>
-    <div class="price">
-      <div class="n">scale-to-0</div>
-      <div class="l">the cloud-native payoff — handle a spike at month-end, then cost almost nothing the rest of the time.</div>
-    </div>
+    <p class="kicker">The core</p>
+    <h2>Policy in, ordered approval chain out</h2>
+    <p>The interesting part of an expense system isn't the form — it's deciding <i>who</i> has to sign off, in <i>what order</i>, and <i>why</i>. That logic lives in one pure function: given an expense and a policy, it returns an ordered, reasoned list of approvers. Same inputs, same chain, no side effects — which is exactly what makes it testable.</p>
+    <p>The policy is data, not code. Thresholds, the finance-review category list and the auto-approve limit all come from <code>data/policy.json</code>, so the rules change without touching the engine.</p>
+    <table>
+      <tr><th>Rule</th><th>Default</th><th>Effect</th></tr>
+      <tr><td><code>auto_approve_under</code></td><td>25</td><td>Below this, auto-approves on submit (empty chain).</td></tr>
+      <tr><td><code>manager_limit</code></td><td>500</td><td>Above this, a director is appended after the manager.</td></tr>
+      <tr><td><code>finance_categories</code></td><td>travel, equipment</td><td>Always add a final finance review.</td></tr>
+      <tr><td><code>finance_amount_floor</code></td><td>2000</td><td>Any amount at/above this adds finance review.</td></tr>
+    </table>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <p class="kicker">The stack</p>
-    <h2>From receipt to reimbursement, on managed services</h2>
-    <p class="muted">Each concern handed to the service built for it.</p>
+    <p class="kicker">The state machine</p>
+    <h2>DRAFT → SUBMITTED → PENDING → APPROVED / REJECTED</h2>
+    <p>Submitting computes the chain and either auto-approves (empty chain) or parks the expense <code>PENDING</code> on its first approver. Each approval advances to the next step; the final approval finalises it. Any rejection halts the chain immediately — later approvers never get a turn. Only the <b>current</b> step's approver may decide; an out-of-turn or out-of-state decision is refused.</p>
+    <pre><span class="c"># real output — python demo.py, expense #5 (5000.00 other)</span>
+  1. Priya Anand <span class="a">(manager)</span>   manager approval
+  2. Dana Reyes  <span class="a">(director)</span>  director approval (amount over 500)
+  3. Marco Lindt <span class="a">(finance)</span>   finance review (amount &gt;= 2000)
+
+<span class="c"># and when the submitter reports to an absent manager, it escalates:</span>
+  1. Dana Reyes  <span class="a">(director)</span>  manager approval (escalated past absent approver)</pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">The audit trail</p>
+    <h2>Every routing decision is recorded</h2>
+    <p>The store keeps an append-only audit trail. Each submit, route, approval, rejection and finalisation is a timestamped row tied to the expense and the actor — so you can always reconstruct why a claim ended where it did.</p>
+    <pre><span class="c"># real audit trail for the 5000 expense, approved end-to-end</span>
+[submitted ] Lena Ortiz    other expense for 5000
+[routed    ] system        awaiting manager (employee 3): manager approval
+[approved  ] Priya Anand   looks good
+[routed    ] Priya Anand   awaiting director (employee 1): director approval (amount over 500)
+[approved  ] Dana Reyes    looks good
+[routed    ] Dana Reyes    awaiting finance (employee 2): finance review (amount &gt;= 2000)
+[approved  ] Marco Lindt   looks good
+[finalized ] Marco Lindt   all approvals complete</pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">The API</p>
+    <h2>The engine, exposed over FastAPI</h2>
+    <p class="muted">The acting employee is passed via an <code>X-Employee-Id</code> header. Run it with <code>uvicorn expenses.api:app --reload</code> and the interactive docs are at <code>/docs</code>.</p>
     <div class="grid">
-      <div class="tool"><div class="t">compute</div><h3>Serverless functions</h3><p>Run the business logic on demand — no idle servers, automatic scaling under load.</p></div>
-      <div class="tool"><div class="t">data</div><h3>Managed database</h3><p>Store expenses, users and approvals in a database the provider runs and backs up.</p></div>
-      <div class="tool"><div class="t">files</div><h3>Object storage</h3><p>Keep receipt images in scalable blob storage, separate from the records that reference them.</p></div>
-      <div class="tool"><div class="t">access</div><h3>Hosted auth</h3><p>Offload logins, sessions and roles to a managed identity service.</p></div>
-      <div class="tool"><div class="t">workflow</div><h3>Approval routing</h3><p>Move each expense through submitted → approved → reimbursed with the right approver.</p></div>
-      <div class="tool"><div class="t">repeatable</div><h3>Infrastructure as code</h3><p>Define the whole stack in code so it can be torn down and recreated identically.</p></div>
+      <div class="tool"><div class="t">POST /expenses</div><h3>Submit</h3><p>File an expense; the response carries the computed approval chain.</p></div>
+      <div class="tool"><div class="t">GET /expenses/mine</div><h3>My expenses</h3><p>Everything I've filed, with current status.</p></div>
+      <div class="tool"><div class="t">GET /expenses/awaiting</div><h3>My queue</h3><p>Expenses waiting on me right now — only my turn shows up.</p></div>
+      <div class="tool"><div class="t">POST …/approve</div><h3>Approve</h3><p>Advance the step assigned to me to the next approver.</p></div>
+      <div class="tool"><div class="t">POST …/reject</div><h3>Reject</h3><p>Halt the chain; the expense is final.</p></div>
+      <div class="tool"><div class="t">GET …/audit</div><h3>Audit trail</h3><p>The full timestamped history of one expense.</p></div>
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <p class="kicker">Architecture</p>
-    <h2>How an expense flows through the cloud</h2>
-    <p>A single claim touches several managed services in turn:</p>
-    <ol class="flow">
-      <li><h3>Submit</h3><p>An employee logs in via the auth service and files an expense with a receipt.</p></li>
-      <li><h3>Store</h3><p>The receipt goes to object storage; the record goes to the managed database.</p></li>
-      <li><h3>Route</h3><p>A serverless function assigns it to the correct approver.</p></li>
-      <li><h3>Decide</h3><p>The approver accepts or rejects, updating the expense's state.</p></li>
-      <li><h3>Reimburse</h3><p>Approved expenses move to reimbursed and close the loop.</p></li>
-    </ol>
+    <p class="kicker">Tested</p>
+    <h2>The engine is the thing that's proven</h2>
+    <p>The routing engine is tested directly and the API through FastAPI's <code>TestClient</code> — <b>24 tests, all passing</b>.</p>
+    <ul class="learn">
+      <li><b>A small expense auto-approves</b> with no chain at all.</li>
+      <li><b>A mid expense stops at the manager;</b> a large one routes manager → director → finance in that order.</li>
+      <li><b>Category rules apply</b> — travel and equipment always pull in finance review.</li>
+      <li><b>Rejection halts the chain</b> and approving out of turn is refused (409 over the API).</li>
+      <li><b>The audit trail records each step,</b> with a timestamp on every entry.</li>
+    </ul>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <p class="kicker">Reflection</p>
-    <h2>What rebuilding it taught me</h2>
-    <ul class="learn">
-      <li><b>Cloud is a design choice, not a host.</b> The win comes from architecting around managed services, not from renting a VM.</li>
-      <li><b>Managed services trade control for calm.</b> You give up tuning the database yourself and get backups, scaling and patching in return.</li>
-      <li><b>Storage and data want separating.</b> Receipts belong in object storage; their metadata belongs in the database — mixing them is a classic mistake.</li>
-      <li><b>Scale-to-zero changes the economics.</b> Serverless makes a bursty, occasionally-used app genuinely cheap to run.</li>
-      <li><b>Infrastructure as code is non-negotiable.</b> If you can't recreate the stack from a file, you don't really understand it.</li>
-    </ul>
+    <p class="kicker">Scope</p>
+    <h2>An honest note on the "cloud" part</h2>
+    <div class="callout">
+      <p>The original framing for this project was a cloud deployment — serverless functions, a managed database, object storage for receipts, hosted auth. <b>That deployment is out of scope here and not claimed.</b></p>
+      <p>What this repo actually contains is the real application underneath it: the routing engine, the state machine, the SQLite store and the FastAPI surface — all runnable and tested locally. Receipts are referenced by path rather than uploaded to a blob store, and the <code>X-Employee-Id</code> header stands in for a managed identity service. This page describes the code that exists, not a deployment that doesn't.</p>
+    </div>
   </div>
 </section>
 
@@ -134,7 +170,7 @@
   <div class="wrap">
     <div class="credit">
       <div class="k">About this build</div>
-      <p style="margin:0">An original, from-scratch build by <b>Andrea</b> — written to learn cloud-native architecture: serverless compute, managed databases, object storage, hosted auth, approval workflows and infrastructure as code. Plain HTML/CSS, deployed on GitHub Pages.</p>
+      <p style="margin:0">An original, from-scratch build by <b>Andrea</b> — a Python expense system built around a policy-driven approval-routing engine, with a SQLite store and a FastAPI API. The backend is real and tested; this static page is just its front door. Source and the full README are in the repository.</p>
     </div>
     <p class="fine">Built from scratch by Andrea · one of an ongoing series of learning builds.</p>
   </div>
